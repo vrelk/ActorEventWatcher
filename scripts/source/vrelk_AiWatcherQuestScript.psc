@@ -20,10 +20,12 @@ Bool hasBetterVampires = false
 
 
 Event OnInit()
+    VrelkTools_Logging.Log("OnInit", "AiWatcherQuestScript", true)
 	Maintenance()
 EndEvent
 
 Event OnLoad()
+    VrelkTools_Logging.Log("OnLoad", "AiWatcherQuestScript", true)
 	Maintenance()
 EndEvent
 
