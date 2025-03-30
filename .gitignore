@@ -1,0 +1,21 @@
+desktop.ini
+
+# Ignore ModOrganizer2 meta.ini
+/meta.ini
+
+# Ignore Spriggit shutcuts
+/bethkit.exe
+/convert-to-xml.bat
+/convert-to-yaml.lnk
+
+# Build scripts
+/scripts/BUILD_ALL.bat
+/scripts/BUILD_ONE.bat
+/scripts/BUILD_ONE_EX.bat
+/PapyrusSourcesDD
+
+# Visual Studio Code
+SkyrimSE.code-workspace
+skyrimse.ppj
+.vscode/launch.json
+.vscode/tasks.json
