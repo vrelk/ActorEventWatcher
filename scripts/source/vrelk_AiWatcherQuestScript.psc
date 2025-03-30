@@ -69,6 +69,7 @@ Function Maintenance()
     RegisterForModEvent("vrelk_VampireStateChange", "OnVrelkVampireStateChange")
     RegisterForModEvent("vrelk_RaceSwitchComplete", "OnVrelkRaceSwitchComplete")
 
+    RegisterForModEvent("BetterVampires_TurnedVampireFeed", "OnVrelkVampireFeed")
     RegisterForModEvent("PAHE_NewSlave", "OnNewPAHESlave")
 
     isLoading = False
