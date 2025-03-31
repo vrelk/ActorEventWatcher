@@ -133,20 +133,24 @@ Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
             msg = msg + " their own cousin"
         ElseIf akVampire.HasFamilyRelationship(akVictim) ; check if the vampire and victim are related
             msg = msg + " their own family member"
+        ElseIf hasPAH && akVictim.IsInFaction(PAHPlayerSlaveFaction) && akVampire.IsInFaction(PAHPlayerSlaveFaction)
+            msg = msg + " their fellow slave"
+        ElseIf hasPAH && akVictim.IsInFaction(PAHPlayerSlaveFaction)
+            msg = msg + playerName + "'s slave"
         ElseIf akVictim.IsInFaction(PlayerFollowerFaction) ; check if the vampire is the player's follower
             msg = msg + playerName + "'s follower"
         ElseIf akVictim.IsInFaction(PlayerMarriedFaction) ; check if the player is married to the victim
             msg = msg + playerName + "'s spouse"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 4 ; check if the player and victim are lovers
+            msg = msg + playerName + "'s lover"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 3 ; check if the player and victim are allies
+            msg = msg + playerName + "'s ally"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 2 ; check if the player and victim are confidants
+            msg = msg + playerName + "'s confidant"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 1 ; check if the player and victim are friends
+            msg = msg + playerName + "'s friend"
         ElseIf PlayerRef.GetRelationshipRank(akVictim) < 0 ; check if the player and victim are enemies
             msg = msg + playerName + "'s enemy"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 1 ; check if the player and victim are friends
-            msg = msg + playerName + "'s' friend"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 2 ; check if the player and victim are confidants
-            msg = msg + playerName + "'s' confidant"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 3 ; check if the player and victim are allies
-            msg = msg + playerName + "'s' ally"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 4 ; check if the player and victim are lovers
-            msg = msg + playerName + "'s' lover"
         EndIf
     EndIf
 
