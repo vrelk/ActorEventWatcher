@@ -1,10 +1,10 @@
-Scriptname vrelk_AiWatcherActorScript Extends ActiveMagicEffect
+Scriptname vrelk_ActorWatcherEffectScript Extends ActiveMagicEffect
 
 Actor ThisActor = None
 Race LastActorRace = None
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-    VrelkTools_Logging.Log("OnEffectStart: " + GetActorName(akTarget), "AiWatcherActor", true)
+    VrelkTools_Logging.Log("OnEffectStart: " + GetActorName(akTarget), "AiWatcherActorScript", true)
 
     ThisActor = akTarget
     LastActorRace = ThisActor.GetRace()
@@ -15,9 +15,9 @@ Event OnVampireFeed(Actor akVictim)
 
 	int handle = ModEvent.Create("vrelk_VampireFeed")
     If (handle)
-		ModEvent.PushForm(handle, ThisActor)
-		ModEvent.PushForm(handle, akVictim)
-		ModEvent.PushString(handle, akVictim.GetSleepState() >= 3)
+		ModEvent.PushString(handle, GetActorName(ThisActor))
+		ModEvent.PushString(handle, GetActorName(akVictim))
+		ModEvent.PushBool(handle, akVictim.GetSleepState() >= 3)
 		ModEvent.Send(handle)
 	EndIf
 EndEvent

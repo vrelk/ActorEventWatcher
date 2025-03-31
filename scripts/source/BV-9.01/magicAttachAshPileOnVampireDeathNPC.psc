@@ -796,15 +796,17 @@ EndEvent
 
 Function SendTurnedVampFeedEvent(Actor akVampire, Actor akVictim, bool victimSleeping)
 	; If the target actor is a turned vampire, send an event to indicate that they are feeding.
-	VrelkTools_Logging.Log("Attempting to send Turned Vampire Feeding event", "BVVampireFeedEvent", true)
-	;ObjectReference obVictim = akVictim as ObjectReference
+	string nameVampire = akVampire.GetDisplayName()
+	string nameVictim = akVictim.GetDisplayName()
+
+	VrelkTools_Logging.Log(nameVampire + " just fed on " + nameVictim, "BVVampireFeedEvent", true)
+
 	If akVampire.HasKeyword(ImATurnedVampire) == True
-		VrelkTools_Logging.Log("Sending Turned Vampire Feeding event", "BVVampireFeedEvent", true)
 		int handle = ModEvent.Create("BetterVampires_TurnedVampireFeed")
     	If (handle)
-			ModEvent.PushForm(handle, akVampire)
-			ModEvent.PushForm(handle, akVictim)
-			ModEvent.PushString(handle, victimSleeping)
+			ModEvent.PushString(handle, nameVampire)
+			ModEvent.PushString(handle, nameVictim)
+			ModEvent.PushBool(handle, victimSleeping)
 			ModEvent.Send(handle)
 		EndIf
 	EndIf
@@ -941,7 +943,6 @@ Function LookForFeedingVictim()
 							
 						EndWhile
 
-						VrelkTools_Logging.Log("NPC Vampire has finished feeding, maybe? NPCIsFeeding: " + NPCIsFeeding, "BVVampireFeedEvent", true)
 						If NPCIsFeeding == True
 							SendTurnedVampFeedEvent(VampTarget, RandomFeedTarget, RandomFeedTarget.GetSleepState() >= 3)
 						EndIf

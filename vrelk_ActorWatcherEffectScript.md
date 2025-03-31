@@ -1,5 +1,5 @@
 
-# vrelk_AiWatcherActorScript
+# vrelk_ActorWatcherEffectScript
 
 ### OnVampireFeed
 
