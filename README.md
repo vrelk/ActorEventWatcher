@@ -1,5 +1,5 @@
 # AI Event Watcher for MinAi
-[Actor Event Details](vrelk_ActorWatcherEffectScript.md)
+[Actor Event Details](vrelk_ActorWatcherEffectScript.md)\
 [Better Vampires Turned NPC Feed Event](magicAttachAshPileOnVampireDeathNPC.md)
 
  - If you are using Better Vampires... (`magicAttachAshPileOnVampireDeathNPC` script)
