@@ -1,4 +1,4 @@
-Scriptname vrelk_ActorWatcherQuestScript Extends Quest  
+Scriptname vrelk_ActorWatcherQuestScript Extends Quest
 {This listens for and processes incoming events}
 
 Spell Property ActorWatcherSpell Auto
@@ -23,12 +23,12 @@ Bool hasBetterVampires = false
 
 
 Event OnInit()
-    VrelkTools_Logging.Log("OnInit", "AiWatcherQuestScript", true)
+    VrelkTools_Logging.Log("OnInit", "ActorWatcherQuestScript", true)
 	Maintenance()
 EndEvent
 
 Event OnLoad()
-    VrelkTools_Logging.Log("OnLoad", "AiWatcherQuestScript", true)
+    VrelkTools_Logging.Log("OnLoad", "ActorWatcherQuestScript", true)
 	Maintenance()
 EndEvent
 
@@ -42,7 +42,7 @@ Function Maintenance()
     ;PlayerRef = Game.GetPlayer()
 
     If !PlayerRef.HasMagicEffect(ActorWatcherEffect)
-        VrelkTools_Logging.Log("Adding AiWatcherActorSpell to PlayerRef", "AiWatcherQuestScript", true)
+        VrelkTools_Logging.Log("Adding AiWatcherActorSpell to PlayerRef", "ActorWatcherQuestScript", true)
         PlayerRef.AddSpell(ActorWatcherSpell)
     EndIf
 
@@ -63,7 +63,7 @@ Function Maintenance()
         DOMPlayerSlaveFaction = Game.GetFormFromFile(0x56C505, "DiaryOfMine.esp") As Faction
     EndIf
 
-    VrelkTools_Logging.Log("Monitoring for Actor Events", "AiWatcherQuestScript", true)
+    VrelkTools_Logging.Log("Monitoring for Actor Events", "ActorWatcherQuestScript", true)
 
 
     UnregisterForAllModEvents()
@@ -81,13 +81,18 @@ EndFunction
 
 
 Event OnVrelkVampireFeed(string nameVampire, string nameVictim, bool victimSleeping)
-    VrelkTools_Logging.Log(nameVampire + " just fed on " + nameVictim, "AiWatcherQuestScript", true)
-    
-    SendVampireFeedEvent(nameVampire, nameVictim, victimSleeping)
+    VrelkTools_Logging.Log(nameVampire + " fed on " + nameVictim + ". Was Sleeping: " + victimSleeping, "ActorWatcherQuestScript", true)
+
+    string msg = nameVampire + "'s vampiric thirst has been quenched by feeding on " + nameVictim
+    If victimSleeping
+        msg = msg + ", who was sleeping."
+    EndIf
+
+    VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
 EndEvent
 
 Event OnVrelkVampireStateChange(Actor akActor, bool isVampire)
-    VrelkTools_Logging.Log(GetActorName(akActor) + " is now a vampire: " + isVampire, "AiWatcherQuestScript", true)
+    VrelkTools_Logging.Log(GetActorName(akActor) + " is now a vampire: " + isVampire, "ActorWatcherQuestScript", true)
 
     ; make this do something else later
 EndEvent
@@ -96,30 +101,37 @@ Event OnVrelkRaceSwitchComplete(Actor akActor, Race oldRace, Race newRace)
     string oldRaceE = PO3_SKSEFunctions.GetFormEditorID(oldRace)
     string newRaceE = PO3_SKSEFunctions.GetFormEditorID(newRace)
 
-    VrelkTools_Logging.Log(GetActorName(akActor) + " changed race from " + oldRaceE + " to " + newRaceE, "AiWatcherQuestScript", true)
+    VrelkTools_Logging.Log(GetActorName(akActor) + " changed race from " + oldRaceE + " to " + newRaceE, "ActorWatcherQuestScript", true)
 
-    ; make this do something else later, like check if they are a vampire lord now or not
+    string msg = None
+
+    If newRace == VampireLordRace ; Transform into vampire lord
+        msg = GetActorName(akActor) + " just transformed into a vampire lord!"
+
+    ElseIf oldRace == VampireLordRace && newRace != VampireLordRace ; Transform from vampire lord back to human
+        msg = GetActorName(akActor) + " just transformed from a vampire lord back to their normal human form."
+
+    ElseIf newRace == WerewolfRace ; Transform into werewolf
+        msg = GetActorName(akActor) + " just transformed into a werewolf!"
+
+    ElseIf oldRace == WerewolfRace && newRace != WerewolfRace ; Transform from werewolf back to human
+        msg = GetActorName(akActor) + " just transformed from a werewolf back to their normal human form."
+    EndIf
+
+    If msg != None && akActor.IsInCombat()
+        VrelkTools_MinAi.RegisterEvent(msg, "info") ; actor is in combat, so just send this as general context information
+    ElseIf msg != None && !akActor.IsInCombat()
+        VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
+    EndIf
 EndEvent
 
-;Event OnNewPAHESlave(PAHCore pahCore, Actor akSlave)
-;    VrelkTools_Logging.Log("OnNewPAHESlave: " + eventName + " " + strArg + " " + numArg + " " + sender, "AiWatcherQuestScript", true)
+Event OnNewPAHESlave(PAHCore pahCore, Actor akSlave)
+    VrelkTools_Logging.Log("OnNewPAHESlave: " + eventName + " " + strArg + " " + numArg + " " + sender, "ActorWatcherQuestScript", true)
 
-    ; make this do something later, once I figure out what the parameters are
-;EndEvent
+    string msg = "I just enslaved " + GetActorName(akSlave)
+    VrelkTools_MinAi.RequestResponseDialogue(GetActorName(PlayerRef), msg, "everyone") ; send player dialogue to everyone, requesting a response
+EndEvent
 
-
-
-
-Function SendVampireFeedEvent(string nameVampire, string nameVictim, bool victimSleeping)
-    VrelkTools_Logging.Log("OnVampireFeed: " + nameVampire + " fed on " + nameVictim + ". Was Sleeping: " + victimSleeping, "VampireFeed", true)
-
-    string msg = nameVampire + "'s vampiric thirst has been quenched by feeding on " + nameVictim
-    If victimSleeping
-        msg = msg + ", who was sleeping."
-    EndIf
-    
-    VrelkTools_MinAi.RequestResponse(msg, "info", "everyone")
-EndFunction
 
 
 string Function GetActorName(actor akActor)
