@@ -27,20 +27,20 @@ Bool enableLogging = true
 
 Event OnInit()
     Log("OnInit")
-	Maintenance()
+    Maintenance()
 EndEvent
 
 Event OnLoad()
     Log("OnLoad")
-	Maintenance()
+    Maintenance()
 EndEvent
 
 Function Maintenance()
     If isLoading
-		Return
-	EndIf
+        Return
+    EndIf
 
-	isLoading = True
+    isLoading = True
 
     If !PlayerRef.HasMagicEffect(ActorWatcherEffect)
         Log("Adding AiWatcherActorSpell to PlayerRef")
