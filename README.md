@@ -1,5 +1,6 @@
 # AI Event Watcher for MinAi
 [Actor Event Details](vrelk_ActorWatcherEffectScript.md)
+[Better Vampires Turned NPC Feed Event](magicAttachAshPileOnVampireDeathNPC.md)
 
  - If you are using Better Vampires... (`magicAttachAshPileOnVampireDeathNPC` script)
 	 - If you are NOT using Race Compatibility, you will need the script located in the `BV-9.01` folder.
