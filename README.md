@@ -1,4 +1,4 @@
-# AI Event Watcher for MinAi
+# Actor Event Watcher for MinAi
 [Actor Event Details](vrelk_ActorWatcherEffectScript.md)\
 [Better Vampires Turned NPC Feed Event](magicAttachAshPileOnVampireDeathNPC.md)
 
