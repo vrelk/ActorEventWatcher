@@ -70,7 +70,8 @@ Function Maintenance()
     UnregisterForAllModEvents()
 
     RegisterForModEvent("vrelk_VampireFeed", "OnVampireFeedEvent")
-    RegisterForModEvent("vrelk_VampireStateChange", "OnVampireStateChangeEvent")
+    ;RegisterForModEvent("vrelk_VampireStateChange", "OnVampireStateChangeEvent")           ; enable this when it does something
+    ;RegisterForModEvent("vrelk_LycanthropyStateChanged", "OnLycanthropyStateChangedEvent") ; enable this when it does something
     RegisterForModEvent("vrelk_RaceSwitchComplete", "OnRaceSwitchCompleteEvent")
 
     If hasBetterVampires
@@ -99,6 +100,12 @@ EndEvent
 
 Event OnVampireStateChangeEvent(Actor akActor, bool isVampire)
     Log(GetActorName(akActor) + " is now a vampire: " + isVampire)
+
+    ; make this do something else later
+EndEvent
+
+Event OnLycanthropyStateChangedEvent(Actor akActor, bool isLycanthrope)
+    Log(GetActorName(akActor) + " is now a wearwolf: " + isLycanthrope)
 
     ; make this do something else later
 EndEvent

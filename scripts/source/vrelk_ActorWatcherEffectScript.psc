@@ -13,13 +13,13 @@ EndEvent
 Event OnVampireFeed(Actor akVictim)
     VrelkTools_Logging.Log(GetActorName(ThisActor) + " just fed on " + GetActorName(akVictim), "AiWatcherActorScript", true)
 
-	int handle = ModEvent.Create("vrelk_VampireFeed")
+    int handle = ModEvent.Create("vrelk_VampireFeed")
     If (handle)
-		ModEvent.PushString(handle, GetActorName(ThisActor))
-		ModEvent.PushString(handle, GetActorName(akVictim))
-		ModEvent.PushBool(handle, akVictim.GetSleepState() >= 3)
-		ModEvent.Send(handle)
-	EndIf
+        ModEvent.PushString(handle, GetActorName(ThisActor))
+        ModEvent.PushString(handle, GetActorName(akVictim))
+        ModEvent.PushBool(handle, akVictim.GetSleepState() >= 3)
+        ModEvent.Send(handle)
+    EndIf
 EndEvent
 
 Event OnVampireStateChange(bool isVampire)
@@ -27,10 +27,21 @@ Event OnVampireStateChange(bool isVampire)
 
     int handle = ModEvent.Create("vrelk_VampireStateChange")
     If (handle)
-		ModEvent.PushForm(handle, ThisActor)
-		ModEvent.PushBool(handle, isVampire)
-		ModEvent.Send(handle)
-	EndIf
+        ModEvent.PushForm(handle, ThisActor)
+        ModEvent.PushBool(handle, isVampire)
+        ModEvent.Send(handle)
+    EndIf
+EndEvent
+
+Event OnLycanthropyStateChange(bool isLycanthrope)
+    VrelkTools_Logging.Log(GetActorName(ThisActor) + " is now a wearwolf: " + isVampisLycanthropeire, "AiWatcherActorScript", true)
+
+    int handle = ModEvent.Create("vrelk_LycanthropyStateChange")
+    If (handle)
+        ModEvent.PushForm(handle, ThisActor)
+        ModEvent.PushBool(handle, isLycanthrope)
+        ModEvent.Send(handle)
+    EndIf
 EndEvent
 
 Event OnRaceSwitchComplete()
@@ -41,11 +52,11 @@ Event OnRaceSwitchComplete()
 
     int handle = ModEvent.Create("vrelk_RaceSwitchComplete")
     If (handle)
-		ModEvent.PushForm(handle, ThisActor)
-		ModEvent.PushForm(handle, LastActorRace)
-		ModEvent.PushForm(handle, ThisActor.GetRace())
-		ModEvent.Send(handle)
-	EndIf
+        ModEvent.PushForm(handle, ThisActor)
+        ModEvent.PushForm(handle, LastActorRace)
+        ModEvent.PushForm(handle, ThisActor.GetRace())
+        ModEvent.Send(handle)
+    EndIf
 
     LastActorRace = ThisActor.GetRace()
 EndEvent
