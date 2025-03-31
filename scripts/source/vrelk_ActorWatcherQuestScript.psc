@@ -11,6 +11,9 @@ Faction Property PAHPlayerSlaveFaction Auto ; 0047DB - Paradise Halls - Player s
 Faction Property DOMPlayerSlaveFaction Auto ; 56C505 - Diary of Mine - Player slave
 Faction Property VampirePCFamily Auto ; 0135EB - Better Vampires - Player turned an npc into a vampire
 
+AssociationType Property AssociationCousin Auto
+AssociationType Property AssociationSibling Auto
+
 Race Property VampireLordRace Auto
 Race Property WerewolfRace Auto
 
@@ -67,6 +70,12 @@ Function Maintenance()
     Log("Monitoring for Actor Events")
 
 
+    RegisterEvents()
+
+    isLoading = False
+EndFunction
+
+Function RegisterEvents()
     UnregisterForAllModEvents()
 
     RegisterForModEvent("vrelk_VampireFeed", "OnVampireFeedEvent")
@@ -81,18 +90,70 @@ Function Maintenance()
     If hasPAH
         RegisterForModEvent("PAHE_NewSlave", "OnNewPaheSlaveEvent")
     EndIf
-
-    isLoading = False
 EndFunction
 
 
 
-Event OnVampireFeedEvent(string nameVampire, string nameVictim, bool victimSleeping)
-    Log(nameVampire + " fed on " + nameVictim + ". Was Sleeping: " + victimSleeping)
+Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
+    Actor akVampire = Game.GetFormEx(formVampire) as Actor
+    Actor akVictim = Game.GetFormEx(formVictim) as Actor
 
-    string msg = nameVampire + "'s vampiric thirst has been quenched by feeding on " + nameVictim
+    Log(GetActorName(akVampire) + " fed on " + GetActorName(akVictim) + ". Was Sleeping: " + victimSleeping)
+
+    string msg = GetActorName(akVampire) + "'s vampiric thirst for blood has been quenched by feeding on"
+
+    If akVictim.IsDead()
+        msg = msg + " the corpse of"
+    EndIf
+
+    string playerName = " " + GetActorName(PlayerRef)
+
+    If akVampire == PlayerRef ; Vampire is the player
+
+        If akVampire != PlayerRef && akVampire.IsInFaction(PlayerFollowerFaction) ; check if the vampire is a follower
+            msg = msg + " their follower"
+        ElseIf akVampire != PlayerRef && akVampire.IsInFaction(PlayerMarriedFaction) ; check if the vampire is married to the victim
+            msg = msg + " their spouse"
+        ElseIf akVampire.GetRelationshipRank(akVictim) < 0 ; check if the vampire and victim are enemies
+            msg = msg + " their enemy"
+        ElseIf akVampire.GetRelationshipRank(akVictim) == 1 ; check if the vampire and victim are friends
+            msg = msg + " their friend"
+        ElseIf akVampire.GetRelationshipRank(akVictim) == 2 ; check if the vampire and victim are confidants
+            msg = msg + " their confidant"
+        ElseIf akVampire.GetRelationshipRank(akVictim) == 3 ; check if the vampire and victim are allies
+            msg = msg + " their ally"
+        ElseIf akVampire.GetRelationshipRank(akVictim) == 4 ; check if the vampire and victim are lovers
+            msg = msg + " their lover"
+        EndIf
+
+    Else ; Non-player vampire
+        If akVampire.HasAssociation(AssociationSibling, akVictim) ; check if the vampire and victim are siblings
+            msg = msg + " their own sibling"
+        ElseIf akVampire.HasAssociation(AssociationCousin, akVictim) ; check if the vampire and victim are cousins
+            msg = msg + " their own cousin"
+        ElseIf akVampire.HasFamilyRelationship(akVictim) ; check if the vampire and victim are related
+            msg = msg + " their own family member"
+        ElseIf akVictim.IsInFaction(PlayerFollowerFaction) ; check if the vampire is the player's follower
+            msg = msg + playerName + "'s follower"
+        ElseIf akVictim.IsInFaction(PlayerMarriedFaction) ; check if the player is married to the victim
+            msg = msg + playerName + "'s spouse"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) < 0 ; check if the player and victim are enemies
+            msg = msg + playerName + "'s enemy"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 1 ; check if the player and victim are friends
+            msg = msg + playerName + "'s' friend"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 2 ; check if the player and victim are confidants
+            msg = msg + playerName + "'s' confidant"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 3 ; check if the player and victim are allies
+            msg = msg + playerName + "'s' ally"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 4 ; check if the player and victim are lovers
+            msg = msg + playerName + "'s' lover"
+        EndIf
+    EndIf
+
+    msg = msg + ", " + GetActorName(akVictim)
+
     If victimSleeping
-        msg = msg + ", who was sleeping."
+        msg = msg + ", while they were sleeping."
     EndIf
 
     VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
@@ -116,7 +177,7 @@ Event OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
 
     Log(GetActorName(akActor) + " changed race from " + oldRaceE + " to " + newRaceE)
 
-    string msg = None
+    string msg = ""
 
     If newRace == VampireLordRace ; Transform into vampire lord
         msg = GetActorName(akActor) + " just transformed into a vampire lord!"
@@ -131,7 +192,7 @@ Event OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
         msg = GetActorName(akActor) + " just transformed from a werewolf back to their normal human form."
     EndIf
 
-    If msg == None ; not a transformation we care about, so just return
+    If msg == "" ; not a transformation we care about, so just return
         return
     ElseIf akActor.IsInCombat()
         VrelkTools_MinAi.RegisterEvent(msg, "info") ; actor is in combat, so just send this as general context information
@@ -159,6 +220,6 @@ EndFunction
 
 Function Log(string msg)
     If enableLogging
-        VrelkTools_Logging.Log(msg, "ActorWatcherQuestScript", true)
+        VrelkTools_Logging.Log(msg, "ActorWatcherQuestScript-1.01", true)
     EndIf
 EndFunction

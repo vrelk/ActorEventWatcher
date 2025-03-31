@@ -261,7 +261,6 @@ EndFunction
 
 
 Event OnEffectStart(Actor VampTargetActor, Actor Caster)
-	VrelkTools_Logging.Log("OnEffectStart: " + VampTargetActor.GetDisplayName() + " -- BetterVampires 9.01 version", "magicAttachAshPileOnVampireDeathNPC", true)
 	Utility.Wait(1.0)
 
 	VampTarget = VampTargetActor
@@ -682,7 +681,6 @@ EndEvent
 
 
 Event OnLoad()
-	VrelkTools_Logging.Log("OnLoad -- Better Vampires 9.01 version" , "magicAttachAshPileOnVampireDeathNPC", true)
 	Utility.Wait(5.0)
 	
 	If VampTarget.HasKeyword(ImATurnedVampire) == True
@@ -796,16 +794,14 @@ EndEvent
 
 Function SendTurnedVampFeedEvent(Actor akVampire, Actor akVictim, bool victimSleeping)
 	; If the target actor is a turned vampire, send an event to indicate that they are feeding.
-	string nameVampire = akVampire.GetDisplayName()
-	string nameVictim = akVictim.GetDisplayName()
 
-	VrelkTools_Logging.Log(nameVampire + " just fed on " + nameVictim, "BVVampireFeedEvent", true)
+	VrelkTools_Logging.Log(akVampire.GetDisplayName() + " just fed on " + akVictim.GetDisplayName(), "BVVampireFeedEvent", true)
 
 	If akVampire.HasKeyword(ImATurnedVampire) == True
 		int handle = ModEvent.Create("BetterVampires_TurnedVampireFeed")
     	If (handle)
-			ModEvent.PushString(handle, nameVampire)
-			ModEvent.PushString(handle, nameVictim)
+			ModEvent.PushInt(handle, akVampire.GetFormID())
+			ModEvent.PushInt(handle, akVictim.GetFormID())
 			ModEvent.PushBool(handle, victimSleeping)
 			ModEvent.Send(handle)
 		EndIf

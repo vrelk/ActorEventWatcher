@@ -1,29 +1,54 @@
 Scriptname vrelk_ActorWatcherEffectScript Extends ActiveMagicEffect
 
+vrelk_ActorWatcherQuestScript Property ActorWatcherQuest Auto
+
 Actor ThisActor = None
 Race LastActorRace = None
 
+; Logging toggle
+Bool enableLogging = true
+
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-    VrelkTools_Logging.Log("OnEffectStart: " + GetActorName(akTarget), "AiWatcherActorScript", true)
+    Log("OnEffectStart: " + GetActorName(akTarget))
 
     ThisActor = akTarget
     LastActorRace = ThisActor.GetRace()
 EndEvent
 
+Event OnPlayerLoadGame()
+    If ThisActor == Game.GetPlayer()
+        If ActorWatcherQuest == None
+            Log("ERROR! ActorWatcherQuestScript is None. Unable to reinitialize quest. Remove the spell and reapply it to yourself, save, then reload.")
+            Return
+        EndIf
+        ActorWatcherQuest.Maintenance()
+    EndIf
+EndEvent
+
+Event OnLocationChange(Location akOldLoc, Location akNewLoc)
+    If ThisActor == Game.GetPlayer()
+        If ActorWatcherQuest == None
+            Log("ERROR! ActorWatcherQuestScript is None. Unable to register events.")
+            Return
+        EndIf
+        ActorWatcherQuest.RegisterEvents()
+    EndIf
+EndEvent
+
 Event OnVampireFeed(Actor akVictim)
-    VrelkTools_Logging.Log(GetActorName(ThisActor) + " just fed on " + GetActorName(akVictim), "AiWatcherActorScript", true)
+    Log(GetActorName(ThisActor) + " just fed on " + GetActorName(akVictim))
 
     int handle = ModEvent.Create("vrelk_VampireFeed")
     If (handle)
-        ModEvent.PushString(handle, GetActorName(ThisActor))
-        ModEvent.PushString(handle, GetActorName(akVictim))
+        ModEvent.PushInt(handle, ThisActor.GetFormID())
+        ModEvent.PushInt(handle, akVictim.GetFormID())
         ModEvent.PushBool(handle, akVictim.GetSleepState() >= 3)
         ModEvent.Send(handle)
     EndIf
 EndEvent
 
 Event OnVampireStateChange(bool isVampire)
-    VrelkTools_Logging.Log(GetActorName(ThisActor) + " is now a vampire: " + isVampire, "AiWatcherActorScript", true)
+    Log(GetActorName(ThisActor) + " is now a vampire: " + isVampire)
 
     int handle = ModEvent.Create("vrelk_VampireStateChange")
     If (handle)
@@ -34,7 +59,7 @@ Event OnVampireStateChange(bool isVampire)
 EndEvent
 
 Event OnLycanthropyStateChange(bool isLycanthrope)
-    VrelkTools_Logging.Log(GetActorName(ThisActor) + " is now a wearwolf: " + isVampisLycanthropeire, "AiWatcherActorScript", true)
+    Log(GetActorName(ThisActor) + " is now a wearwolf: " + isLycanthrope)
 
     int handle = ModEvent.Create("vrelk_LycanthropyStateChange")
     If (handle)
@@ -48,7 +73,7 @@ Event OnRaceSwitchComplete()
     string oldRace = PO3_SKSEFunctions.GetFormEditorID(LastActorRace)
     string newRace = PO3_SKSEFunctions.GetFormEditorID(ThisActor.GetRace())
 
-    VrelkTools_Logging.Log(GetActorName(ThisActor) + " changed race from " + oldRace + " to " + newRace, "AiWatcherActorScript", true)
+    Log(GetActorName(ThisActor) + " changed race from " + oldRace + " to " + newRace)
 
     int handle = ModEvent.Create("vrelk_RaceSwitchComplete")
     If (handle)
@@ -66,5 +91,11 @@ string Function GetActorName(actor akActor)
         Return akActor.GetActorBase().GetName()
     Else
         Return akActor.GetDisplayName()
+    EndIf
+EndFunction
+
+Function Log(string msg)
+    If enableLogging
+        VrelkTools_Logging.Log(msg, "ActorWatcherActorScript-1.01", true)
     EndIf
 EndFunction
