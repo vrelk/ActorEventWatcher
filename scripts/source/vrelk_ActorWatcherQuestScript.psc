@@ -21,14 +21,17 @@ Bool hasPAH = false
 Bool hasDOM = false
 Bool hasBetterVampires = false
 
+; Logging toggle
+Bool enableLogging = true
+
 
 Event OnInit()
-    VrelkTools_Logging.Log("OnInit", "ActorWatcherQuestScript", true)
+    Log("OnInit")
 	Maintenance()
 EndEvent
 
 Event OnLoad()
-    VrelkTools_Logging.Log("OnLoad", "ActorWatcherQuestScript", true)
+    Log("OnLoad")
 	Maintenance()
 EndEvent
 
@@ -39,10 +42,8 @@ Function Maintenance()
 
 	isLoading = True
 
-    ;PlayerRef = Game.GetPlayer()
-
     If !PlayerRef.HasMagicEffect(ActorWatcherEffect)
-        VrelkTools_Logging.Log("Adding AiWatcherActorSpell to PlayerRef", "ActorWatcherQuestScript", true)
+        Log("Adding AiWatcherActorSpell to PlayerRef")
         PlayerRef.AddSpell(ActorWatcherSpell)
     EndIf
 
@@ -54,34 +55,39 @@ Function Maintenance()
         hasPAH = true
         PAHPlayerSlaveFaction = Game.GetFormFromFile(0x0047DB, "paradise_halls.esm") As Faction
     EndIf
-    If Game.IsPluginInstalled("DiaryOfMine.esm")
+    If Game.IsPluginInstalled("DiaryOfMine.esm") ; The newer ESM version of Diary of Mine
         hasDOM = true
         DOMPlayerSlaveFaction = Game.GetFormFromFile(0x56C505, "DiaryOfMine.esm") As Faction
     EndIf
-    If Game.IsPluginInstalled("DiaryOfMine.esp")
+    If Game.IsPluginInstalled("DiaryOfMine.esp") ; The older ESP version of Diary of Mine
         hasDOM = true
         DOMPlayerSlaveFaction = Game.GetFormFromFile(0x56C505, "DiaryOfMine.esp") As Faction
     EndIf
 
-    VrelkTools_Logging.Log("Monitoring for Actor Events", "ActorWatcherQuestScript", true)
+    Log("Monitoring for Actor Events")
 
 
     UnregisterForAllModEvents()
 
-    RegisterForModEvent("vrelk_VampireFeed", "OnVrelkVampireFeed")
-    RegisterForModEvent("vrelk_VampireStateChange", "OnVrelkVampireStateChange")
-    RegisterForModEvent("vrelk_RaceSwitchComplete", "OnVrelkRaceSwitchComplete")
+    RegisterForModEvent("vrelk_VampireFeed", "OnVampireFeedEvent")
+    RegisterForModEvent("vrelk_VampireStateChange", "OnVampireStateChangeEvent")
+    RegisterForModEvent("vrelk_RaceSwitchComplete", "OnRaceSwitchCompleteEvent")
 
-    RegisterForModEvent("BetterVampires_TurnedVampireFeed", "OnVrelkVampireFeed")
-    RegisterForModEvent("PAHE_NewSlave", "OnNewPAHESlave")
+    If hasBetterVampires
+        RegisterForModEvent("BetterVampires_TurnedVampireFeed", "OnVampireFeedEvent")
+    EndIf
+
+    If hasPAH
+        RegisterForModEvent("PAHE_NewSlave", "OnNewPaheSlaveEvent")
+    EndIf
 
     isLoading = False
 EndFunction
 
 
 
-Event OnVrelkVampireFeed(string nameVampire, string nameVictim, bool victimSleeping)
-    VrelkTools_Logging.Log(nameVampire + " fed on " + nameVictim + ". Was Sleeping: " + victimSleeping, "ActorWatcherQuestScript", true)
+Event OnVampireFeedEvent(string nameVampire, string nameVictim, bool victimSleeping)
+    Log(nameVampire + " fed on " + nameVictim + ". Was Sleeping: " + victimSleeping)
 
     string msg = nameVampire + "'s vampiric thirst has been quenched by feeding on " + nameVictim
     If victimSleeping
@@ -91,17 +97,17 @@ Event OnVrelkVampireFeed(string nameVampire, string nameVictim, bool victimSleep
     VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
 EndEvent
 
-Event OnVrelkVampireStateChange(Actor akActor, bool isVampire)
-    VrelkTools_Logging.Log(GetActorName(akActor) + " is now a vampire: " + isVampire, "ActorWatcherQuestScript", true)
+Event OnVampireStateChangeEvent(Actor akActor, bool isVampire)
+    Log(GetActorName(akActor) + " is now a vampire: " + isVampire)
 
     ; make this do something else later
 EndEvent
 
-Event OnVrelkRaceSwitchComplete(Actor akActor, Race oldRace, Race newRace)
+Event OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
     string oldRaceE = PO3_SKSEFunctions.GetFormEditorID(oldRace)
     string newRaceE = PO3_SKSEFunctions.GetFormEditorID(newRace)
 
-    VrelkTools_Logging.Log(GetActorName(akActor) + " changed race from " + oldRaceE + " to " + newRaceE, "ActorWatcherQuestScript", true)
+    Log(GetActorName(akActor) + " changed race from " + oldRaceE + " to " + newRaceE)
 
     string msg = None
 
@@ -118,15 +124,17 @@ Event OnVrelkRaceSwitchComplete(Actor akActor, Race oldRace, Race newRace)
         msg = GetActorName(akActor) + " just transformed from a werewolf back to their normal human form."
     EndIf
 
-    If msg != None && akActor.IsInCombat()
+    If msg == None ; not a transformation we care about, so just return
+        return
+    ElseIf akActor.IsInCombat()
         VrelkTools_MinAi.RegisterEvent(msg, "info") ; actor is in combat, so just send this as general context information
-    ElseIf msg != None && !akActor.IsInCombat()
+    ElseIf !akActor.IsInCombat()
         VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
     EndIf
 EndEvent
 
-Event OnNewPAHESlave(PAHCore pahCore, Actor akSlave)
-    VrelkTools_Logging.Log("OnNewPAHESlave: " + eventName + " " + strArg + " " + numArg + " " + sender, "ActorWatcherQuestScript", true)
+Event OnNewPaheSlaveEvent(PAHCore pahCore, Actor akSlave)
+    Log(GetActorName(akSlave) + " is now a PAH slave.")
 
     string msg = "I just enslaved " + GetActorName(akSlave)
     VrelkTools_MinAi.RequestResponseDialogue(GetActorName(PlayerRef), msg, "everyone") ; send player dialogue to everyone, requesting a response
@@ -139,5 +147,11 @@ string Function GetActorName(actor akActor)
         Return akActor.GetActorBase().GetName()
     Else
         Return akActor.GetDisplayName()
+    EndIf
+EndFunction
+
+Function Log(string msg)
+    If enableLogging
+        VrelkTools_Logging.Log(msg, "ActorWatcherQuestScript", true)
     EndIf
 EndFunction
