@@ -20,3 +20,4 @@ skyrimse.ppj
 .vscode/launch.json
 .vscode/tasks.json
 scripts/magicAttachAshPileOnVampireDeathNPC.pex
+scripts/source/magicAttachAshPileOnVampireDeathNPC.psc
