@@ -4,6 +4,7 @@ vrelk_ActorWatcherQuestScript Property ActorWatcherQuest Auto
 
 Actor ThisActor = None
 Race LastActorRace = None
+Bool hasOCF = false
 
 ; Logging toggle
 Bool enableLogging = true
@@ -13,6 +14,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 
     ThisActor = akTarget
     LastActorRace = ThisActor.GetRace()
+    If Game.IsPluginInstalled("OCF.esp") ; Object Catigorization Framework
+        hasOCF = true
+    EndIf
 EndEvent
 
 Event OnPlayerLoadGame()
@@ -22,6 +26,10 @@ Event OnPlayerLoadGame()
             Return
         EndIf
         ActorWatcherQuest.Maintenance()
+
+        If Game.IsPluginInstalled("OCF.esp") ; Object Catigorization Framework
+            hasOCF = true
+        EndIf
     EndIf
 EndEvent
 
@@ -84,6 +92,14 @@ Event OnRaceSwitchComplete()
     EndIf
 
     LastActorRace = ThisActor.GetRace()
+EndEvent
+
+Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
+    If hasOCF && akBaseObject as Potion
+        If akBaseObject.HasKeywordString("OCF_AlchDrinkAlcohol")
+            VrelkTools_MinAi.RegisterEvent(GetActorName(ThisActor) + " just drank " + akBaseObject.GetName() + " (alcohol)")
+        EndIf
+    EndIf
 EndEvent
 
 string Function GetActorName(actor akActor)
