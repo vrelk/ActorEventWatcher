@@ -107,13 +107,28 @@ Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
     EndIf
 
     string playerName = " " + GetActorName(PlayerRef)
+    bool requestVictimResponse = false
 
+
+    ; ----
+    ; Put these in the order you want them to be checked
+    ; ----
     If akVampire == PlayerRef ; Vampire is the player
-
-        If akVampire != PlayerRef && akVampire.IsInFaction(PlayerFollowerFaction) ; check if the vampire is a follower
-            msg = msg + " their follower"
-        ElseIf akVampire != PlayerRef && akVampire.IsInFaction(PlayerMarriedFaction) ; check if the vampire is married to the victim
+        If akVampire != PlayerRef && akVampire.IsInFaction(PlayerMarriedFaction) ; check if the vampire is married to the victim
             msg = msg + " their spouse"
+            requestVictimResponse = true
+
+        ElseIf akVampire != PlayerRef && akVampire.IsInFaction(PlayerFollowerFaction) ; check if the vampire is a follower
+            msg = msg + " their follower"
+            requestVictimResponse = true
+
+        ElseIf hasPAH && akVictim.IsInFaction(PAHPlayerSlaveFaction) ; check if the vampire is a slave
+            msg = msg + " their slave"
+            requestVictimResponse = true
+
+        ; ----
+        ; Order doesn't matter for relationship ranks
+        ; ----
         ElseIf akVampire.GetRelationshipRank(akVictim) < 0 ; check if the vampire and victim are enemies
             msg = msg + " their enemy"
         ElseIf akVampire.GetRelationshipRank(akVictim) == 1 ; check if the vampire and victim are friends
@@ -122,35 +137,56 @@ Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
             msg = msg + " their confidant"
         ElseIf akVampire.GetRelationshipRank(akVictim) == 3 ; check if the vampire and victim are allies
             msg = msg + " their ally"
+            requestVictimResponse = true
         ElseIf akVampire.GetRelationshipRank(akVictim) == 4 ; check if the vampire and victim are lovers
             msg = msg + " their lover"
+            requestVictimResponse = true
         EndIf
 
+    ; ----
+    ; Put these in the order you want them to be checked
+    ; ----
     Else ; Non-player vampire
         If akVampire.HasAssociation(AssociationSibling, akVictim) ; check if the vampire and victim are siblings
-            msg = msg + " their own sibling"
+            msg = msg + " their now upset sibling"
+            requestVictimResponse = true
+
         ElseIf akVampire.HasAssociation(AssociationCousin, akVictim) ; check if the vampire and victim are cousins
-            msg = msg + " their own cousin"
+            msg = msg + " their now irritated cousin"
+            requestVictimResponse = true
+
         ElseIf akVampire.HasFamilyRelationship(akVictim) ; check if the vampire and victim are related
-            msg = msg + " their own family member"
+            msg = msg + " their now irritated family member"
+            requestVictimResponse = true
+
         ElseIf hasPAH && akVictim.IsInFaction(PAHPlayerSlaveFaction) && akVampire.IsInFaction(PAHPlayerSlaveFaction)
             msg = msg + " their fellow slave"
+
         ElseIf hasPAH && akVictim.IsInFaction(PAHPlayerSlaveFaction)
             msg = msg + playerName + "'s slave"
+
         ElseIf akVictim.IsInFaction(PlayerFollowerFaction) ; check if the vampire is the player's follower
             msg = msg + playerName + "'s follower"
+
         ElseIf akVictim.IsInFaction(PlayerMarriedFaction) ; check if the player is married to the victim
-            msg = msg + playerName + "'s spouse"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 4 ; check if the player and victim are lovers
-            msg = msg + playerName + "'s lover"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 3 ; check if the player and victim are allies
-            msg = msg + playerName + "'s ally"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 2 ; check if the player and victim are confidants
-            msg = msg + playerName + "'s confidant"
-        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 1 ; check if the player and victim are friends
-            msg = msg + playerName + "'s friend"
+            msg = msg + playerName + "'s now furious spouse"
+            requestVictimResponse = true
+        
+        ; ----
+        ; Order doesn't matter for relationship ranks
+        ; ----
         ElseIf PlayerRef.GetRelationshipRank(akVictim) < 0 ; check if the player and victim are enemies
             msg = msg + playerName + "'s enemy"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 1 ; check if the player and victim are friends
+            msg = msg + playerName + "'s friend"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 2 ; check if the player and victim are confidants
+            msg = msg + playerName + "'s confidant"
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 3 ; check if the player and victim are allies
+            msg = msg + playerName + "'s ally"
+            requestVictimResponse = true
+        ElseIf PlayerRef.GetRelationshipRank(akVictim) == 4 ; check if the player and victim are lovers
+            msg = msg + playerName + "'s lover"
+            requestVictimResponse = true
         EndIf
     EndIf
 
