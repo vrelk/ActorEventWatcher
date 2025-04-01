@@ -8,3 +8,4 @@
 
 #### Make sure this mod has a higher priority than both *Better Vampires* and *Race Compatibility* in your mod manager so it can override the Better Vampires script.
 
+#### If you're going to test this, you will need this while it's in the dev stages... [VrelkPapyrusTools](https://git.vrelk.com/vrelk-mods/Vrelk_PapyrusTools/releases)
