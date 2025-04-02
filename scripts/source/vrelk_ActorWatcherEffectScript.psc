@@ -33,15 +33,15 @@ Event OnPlayerLoadGame()
     EndIf
 EndEvent
 
-Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-    If ThisActor == Game.GetPlayer()
-        If ActorWatcherQuest == None
-            Log("ERROR! ActorWatcherQuestScript is None. Unable to register events.")
-            Return
-        EndIf
-        ActorWatcherQuest.RegisterEvents()
-    EndIf
-EndEvent
+; Event OnLocationChange(Location akOldLoc, Location akNewLoc)
+;     If ThisActor == Game.GetPlayer()
+;         If ActorWatcherQuest == None
+;             Log("ERROR! ActorWatcherQuestScript is None. Unable to register events.")
+;             Return
+;         EndIf
+;         ActorWatcherQuest.RegisterEvents()
+;     EndIf
+; EndEvent
 
 Event OnVampireFeed(Actor akVictim)
     Log(GetActorName(ThisActor) + " just fed on " + GetActorName(akVictim))

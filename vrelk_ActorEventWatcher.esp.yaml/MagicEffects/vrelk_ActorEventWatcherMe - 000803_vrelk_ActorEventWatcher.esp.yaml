@@ -1,0 +1,22 @@
+FormKey: 000803:vrelk_ActorEventWatcher.esp
+EditorID: vrelk_ActorEventWatcherMe
+VirtualMachineAdapter:
+  Scripts:
+  - Name: vrelk_ActorWatcherEffectScript
+Name:
+  TargetLanguage: English
+  Value: ActorEventWatcher
+MenuDisplayObject: 0435A5:Skyrim.esm
+Flags:
+- NoArea
+- HideInUI
+- PowerAffectsMagnitude
+Archetype:
+  MutagenObjectType: MagicEffectArchetype
+  Type: Script
+DualCastScale: 1
+CastingSoundLevel: Normal
+Sounds: []
+Description:
+  TargetLanguage: English
+  Value: ''

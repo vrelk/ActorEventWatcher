@@ -1,0 +1,41 @@
+FormKey: 000801:vrelk_ActorEventWatcher.esp
+EditorID: vrelk_ActorEventWatcher
+VirtualMachineAdapter:
+  Scripts:
+  - Name: vrelk_ActorWatcherQuestScript
+    Properties:
+    - MutagenObjectType: ScriptObjectProperty
+      Name: ActorWatcherSpell
+      Object: 000802:vrelk_ActorEventWatcher.esp
+    - MutagenObjectType: ScriptObjectProperty
+      Name: PlayerFollowerFaction
+      Object: 084D1B:Skyrim.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: PlayerMarriedFaction
+      Object: 0C6472:Skyrim.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: ActorWatcherEffect
+      Object: 000803:vrelk_ActorEventWatcher.esp
+    - MutagenObjectType: ScriptObjectProperty
+      Name: WerewolfRace
+      Object: 0CDD84:Skyrim.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: VampireLordRace
+      Object: 00283A:Dawnguard.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: PlayerRef
+      Object: 000014:Skyrim.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: AssociationSibling
+      Object: 0142C5:Skyrim.esm
+    - MutagenObjectType: ScriptObjectProperty
+      Name: AssociationCousin
+      Object: 0142C8:Skyrim.esm
+  Versioning:
+  - Break0
+  ExtraBindDataVersion: 0
+  FileName: ''
+Flags:
+- StartGameEnabled
+- 0x10
+NextAliasID: 0

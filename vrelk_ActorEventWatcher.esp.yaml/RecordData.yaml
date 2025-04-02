@@ -1,0 +1,15 @@
+SpriggitSource:
+  PackageName: 0.36.14
+  Version: ''
+ModKey: vrelk_ActorEventWatcher.esp
+GameRelease: SkyrimSE
+ModHeader:
+  Flags:
+  - Small
+  Author: DEFAULT
+  MasterReferences:
+  - Master: Skyrim.esm
+    FileSize: 0
+  - Master: Dawnguard.esm
+    FileSize: 0
+  INTV: 1
