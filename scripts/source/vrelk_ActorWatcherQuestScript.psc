@@ -23,10 +23,11 @@ Bool isLoading = False
 Bool hasPAH = false
 Bool hasDOM = false
 Bool hasBetterVampires = false
+Bool hasOCF = false
 
 ; Logging toggle
 Bool enableLogging = true
-
+String logPrefix = "Vrelk_ActorWatcherQuestScript-1.07"
 
 Event OnInit()
     Log("OnInit")
@@ -43,11 +44,17 @@ Function Maintenance()
         Return
     EndIf
 
+    Log("Maintenance")
+    
     isLoading = True
 
     If !PlayerRef.HasMagicEffect(ActorWatcherEffect)
         Log("Adding AiWatcherActorSpell to PlayerRef")
         PlayerRef.AddSpell(ActorWatcherSpell)
+    EndIf
+
+    If Game.IsPluginInstalled("OCF.esp") ; Object Catigorization Framework
+        hasOCF = true
     EndIf
 
     If Game.IsPluginInstalled("Better Vampires.esp")
@@ -78,10 +85,10 @@ EndFunction
 Function RegisterEvents()
     UnregisterForAllModEvents()
 
-    RegisterForModEvent("vrelk_VampireFeed", "OnVampireFeedEvent")
+    ;RegisterForModEvent("vrelk_VampireFeed", "OnVampireFeedEvent")
     ;RegisterForModEvent("vrelk_VampireStateChange", "OnVampireStateChangeEvent")           ; enable this when it does something
     ;RegisterForModEvent("vrelk_LycanthropyStateChanged", "OnLycanthropyStateChangedEvent") ; enable this when it does something
-    RegisterForModEvent("vrelk_RaceSwitchComplete", "OnRaceSwitchCompleteEvent")
+    ;RegisterForModEvent("vrelk_RaceSwitchComplete", "OnRaceSwitchCompleteEvent")
 
     If hasBetterVampires
         RegisterForModEvent("BetterVampires_TurnedVampireFeed", "OnVampireFeedEvent")
@@ -93,14 +100,32 @@ Function RegisterEvents()
 EndFunction
 
 
-
-Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
+; 888     888                                d8b                 8888888888                     888
+; 888     888                                Y8P                 888                            888
+; 888     888                                                    888                            888
+; Y88b   d88P 8888b.  88888b.d88b.  88888b.  888 888d888 .d88b.  8888888  .d88b.   .d88b.   .d88888
+;  Y88b d88P     "88b 888 "888 "88b 888 "88b 888 888P"  d8P  Y8b 888     d8P  Y8b d8P  Y8b d88" 888
+;   Y88o88P  .d888888 888  888  888 888  888 888 888    88888888 888     88888888 88888888 888  888
+;    Y888P   888  888 888  888  888 888 d88P 888 888    Y8b.     888     Y8b.     Y8b.     Y88b 888
+;     Y8P    "Y888888 888  888  888 88888P"  888 888     "Y8888  888      "Y8888   "Y8888   "Y88888
+;                                   888
+;                                   888
+;                                   888
+; only converting to FormID since the event kept getting both Actor and ObjectReference for some reason (and couldn't convert to Actor)
+Event OnVampireFeed(int formVampire, int formVictim, bool victimSleeping)
     Actor akVampire = Game.GetFormEx(formVampire) as Actor
     Actor akVictim = Game.GetFormEx(formVictim) as Actor
+    OnVampireFeedEvent(akVampire, akVictim, victimSleeping)
+EndEvent
+
+;Function OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
+Function OnVampireFeedEvent(Actor akVampire, Actor akVictim, bool victimSleeping)
+    ;Actor akVampire = Game.GetFormEx(formVampire) as Actor
+    ;Actor akVictim = Game.GetFormEx(formVictim) as Actor
 
     Log(GetActorName(akVampire) + " fed on " + GetActorName(akVictim) + ". Was Sleeping: " + victimSleeping)
 
-    string msg = GetActorName(akVampire) + "'s vampiric thirst for blood has been quenched by feeding on"
+    string msg = "I just quenched my vampiric thirst for blood by feeding on"
 
     If akVictim.IsDead()
         msg = msg + " the corpse of"
@@ -196,22 +221,55 @@ Event OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
         msg = msg + ", while they were sleeping."
     EndIf
 
-    VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
-EndEvent
+    VrelkTools_MinAi.RequestResponseDialogue(GetActorName(akVampire), msg, "everyone") ; send generic dialogue to everyone, requesting a response
+EndFunction
 
-Event OnVampireStateChangeEvent(Actor akActor, bool isVampire)
+
+; 888     888                                d8b                 .d8888b.  888             888
+; 888     888                                Y8P                d88P  Y88b 888             888
+; 888     888                                                   Y88b.      888             888
+; Y88b   d88P 8888b.  88888b.d88b.  88888b.  888 888d888 .d88b.  "Y888b.   888888  8888b.  888888 .d88b.
+;  Y88b d88P     "88b 888 "888 "88b 888 "88b 888 888P"  d8P  Y8b    "Y88b. 888        "88b 888   d8P  Y8b
+;   Y88o88P  .d888888 888  888  888 888  888 888 888    88888888      "888 888    .d888888 888   88888888
+;    Y888P   888  888 888  888  888 888 d88P 888 888    Y8b.    Y88b  d88P Y88b.  888  888 Y88b. Y8b.
+;     Y8P    "Y888888 888  888  888 88888P"  888 888     "Y8888  "Y8888P"   "Y888 "Y888888  "Y888 "Y8888
+;                                   888
+;                                   888
+;                                   888
+Function OnVampireStateChangeEvent(Actor akActor, bool isVampire)
     Log(GetActorName(akActor) + " is now a vampire: " + isVampire)
 
     ; make this do something else later
-EndEvent
+EndFunction
 
-Event OnLycanthropyStateChangedEvent(Actor akActor, bool isLycanthrope)
+
+; 888                                         888    888                                         .d8888b.  888             888
+; 888                                         888    888                                        d88P  Y88b 888             888
+; 888                                         888    888                                        Y88b.      888             888
+; 888     888  888  .d8888b  8888b.  88888b.  888888 88888b.  888d888 .d88b.  88888b.  888  888  "Y888b.   888888  8888b.  888888 .d88b.
+; 888     888  888 d88P"        "88b 888 "88b 888    888 "88b 888P"  d88""88b 888 "88b 888  888     "Y88b. 888        "88b 888   d8P  Y8b
+; 888     888  888 888      .d888888 888  888 888    888  888 888    888  888 888  888 888  888       "888 888    .d888888 888   88888888
+; 888     Y88b 888 Y88b.    888  888 888  888 Y88b.  888  888 888    Y88..88P 888 d88P Y88b 888 Y88b  d88P Y88b.  888  888 Y88b. Y8b.
+; 88888888 "Y88888  "Y8888P "Y888888 888  888  "Y888 888  888 888     "Y88P"  88888P"   "Y88888  "Y8888P"   "Y888 "Y888888  "Y888 "Y8888
+;              888                                                            888           888
+;         Y8b d88P                                                            888      Y8b d88P
+;          "Y88P"                                                             888       "Y88P"
+Function OnLycanthropyStateChangeEvent(Actor akActor, bool isLycanthrope)
     Log(GetActorName(akActor) + " is now a wearwolf: " + isLycanthrope)
 
     ; make this do something else later
-EndEvent
+EndFunction
 
-Event OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
+
+; 8888888b.                            .d8888b.                d8b 888            888
+; 888   Y88b                          d88P  Y88b               Y8P 888            888
+; 888    888                          Y88b.                        888            888
+; 888   d88P  8888b.   .d8888b .d88b.  "Y888b.   888  888  888 888 888888 .d8888b 88888b.
+; 8888888P"      "88b d88P"   d8P  Y8b    "Y88b. 888  888  888 888 888   d88P"    888 "88b
+; 888 T88b   .d888888 888     88888888      "888 888  888  888 888 888   888      888  888
+; 888  T88b  888  888 Y88b.   Y8b.    Y88b  d88P Y88b 888 d88P 888 Y88b. Y88b.    888  888
+; 888   T88b "Y888888  "Y8888P "Y8888  "Y8888P"   "Y8888888P"  888  "Y888 "Y8888P 888  888
+Function OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
     string oldRaceE = PO3_SKSEFunctions.GetFormEditorID(oldRace)
     string newRaceE = PO3_SKSEFunctions.GetFormEditorID(newRace)
 
@@ -220,33 +278,77 @@ Event OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
     string msg = ""
 
     If newRace == VampireLordRace ; Transform into vampire lord
-        msg = GetActorName(akActor) + " just transformed into a vampire lord!"
+        msg = " just transformed into a vampire lord!"
 
     ElseIf oldRace == VampireLordRace && newRace != VampireLordRace ; Transform from vampire lord back to human
-        msg = GetActorName(akActor) + " just transformed from a vampire lord back to their normal human form."
+        msg = " just transformed from a vampire lord back to their normal human form."
 
     ElseIf newRace == WerewolfRace ; Transform into werewolf
-        msg = GetActorName(akActor) + " just transformed into a werewolf!"
+        msg = " just transformed into a werewolf!"
 
     ElseIf oldRace == WerewolfRace && newRace != WerewolfRace ; Transform from werewolf back to human
-        msg = GetActorName(akActor) + " just transformed from a werewolf back to their normal human form."
+        msg = " just transformed from a werewolf back to their normal human form."
+    EndIf
+    
+    If akActor == PlayerRef
+        msg = "I" + msg
+    Else
+        msg = GetActorName(akActor) + msg
     EndIf
 
     If msg == "" ; not a transformation we care about, so just return
         return
     ElseIf akActor.IsInCombat()
-        VrelkTools_MinAi.RegisterEvent(msg, "info") ; actor is in combat, so just send this as general context information
+        VrelkTools_MinAi.RegisterEvent(msg, "infoaction") ; actor is in combat, so just send this as general context information
     ElseIf !akActor.IsInCombat()
-        VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
+        If akActor == PlayerRef
+            VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
+        Else
+            VrelkTools_MinAi.RequestResponseDialogue(GetActorName(akActor), msg, "everyone") ; send generic dialogue to everyone, requesting a response
+        EndIf
     EndIf
-EndEvent
+EndFunction
 
+
+;  .d88888b.  888       d8b                   888    8888888888                  d8b                                 888
+; d88P" "Y88b 888       Y8P                   888    888                         Y8P                                 888
+; 888     888 888                             888    888                                                             888
+; 888     888 88888b.  8888  .d88b.   .d8888b 888888 8888888    .d88888 888  888 888 88888b.  88888b.   .d88b.   .d88888
+; 888     888 888 "88b "888 d8P  Y8b d88P"    888    888       d88" 888 888  888 888 888 "88b 888 "88b d8P  Y8b d88" 888
+; 888     888 888  888  888 88888888 888      888    888       888  888 888  888 888 888  888 888  888 88888888 888  888
+; Y88b. .d88P 888 d88P  888 Y8b.     Y88b.    Y88b.  888       Y88b 888 Y88b 888 888 888 d88P 888 d88P Y8b.     Y88b 888
+;  "Y88888P"  88888P"   888  "Y8888   "Y8888P  "Y888 8888888888 "Y88888  "Y88888 888 88888P"  88888P"   "Y8888   "Y88888
+;                       888                                         888              888      888
+;                      d88P                                         888              888      888
+;                    888P"                                          888              888      888
+Function OnObjectEquippedEvent(Actor akActor, Form akBaseObject, ObjectReference akReference)
+    If hasOCF && akBaseObject as Potion
+        If akBaseObject.HasKeywordString("OCF_AlchDrinkAlcohol")
+            VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just drank " + akBaseObject.GetName() + " (alcohol)", "infoaction")
+        ElseIf akBaseObject.HasKeywordString("OCF_AlchDrugSkooma")
+            VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just consumed some " + akBaseObject.GetName() + " (highly addictive narcotic)", "infoaction")
+        ElseIf akBaseObject.HasKeywordString("_SHBloodDrink")
+            VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just drank a " + akBaseObject.GetName() + " (alternative to feeding on another person)", "infoaction")
+        EndIf
+    EndIf
+EndFunction
+
+
+; 888b    888                        8888888b.          888               .d8888b.  888
+; 8888b   888                        888   Y88b         888              d88P  Y88b 888
+; 88888b  888                        888    888         888              Y88b.      888
+; 888Y88b 888  .d88b.  888  888  888 888   d88P 8888b.  88888b.   .d88b.  "Y888b.   888  8888b.  888  888  .d88b.
+; 888 Y88b888 d8P  Y8b 888  888  888 8888888P"     "88b 888 "88b d8P  Y8b    "Y88b. 888     "88b 888  888 d8P  Y8b
+; 888  Y88888 88888888 888  888  888 888       .d888888 888  888 88888888      "888 888 .d888888 Y88  88P 88888888
+; 888   Y8888 Y8b.     Y88b 888 d88P 888       888  888 888  888 Y8b.    Y88b  d88P 888 888  888  Y8bd8P  Y8b.
+; 888    Y888  "Y8888   "Y8888888P"  888       "Y888888 888  888  "Y8888  "Y8888P"  888 "Y888888   Y88P    "Y8888
 Event OnNewPaheSlaveEvent(PAHCore pahCore, Actor akSlave)
     Log(GetActorName(akSlave) + " is now a PAH slave.")
 
     string msg = "I just enslaved " + GetActorName(akSlave)
-    VrelkTools_MinAi.RequestResponseDialogue(GetActorName(PlayerRef), msg, "everyone") ; send player dialogue to everyone, requesting a response
+    VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send player dialogue to everyone, requesting a response
 EndEvent
+
 
 
 
@@ -260,6 +362,6 @@ EndFunction
 
 Function Log(string msg)
     If enableLogging
-        VrelkTools_Logging.Log(msg, "ActorWatcherQuestScript-1.01", true)
+        VrelkTools_Logging.Log(msg, logPrefix, true)
     EndIf
 EndFunction
