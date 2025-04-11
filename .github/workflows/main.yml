@@ -1,0 +1,183 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    # Define REF_NAME as an environment variable for the entire job
+    env:
+      REF_NAME: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create BAIN folders and move files
+        run: |
+          # Create the main packaging folder and BAIN subfolders
+          New-Item -Path . -Name "_pack/REQUIRED" -ItemType "Directory"
+          New-Item -Path . -Name "_pack/BV/scripts" -ItemType "Directory"
+          New-Item -Path . -Name "_pack/BV_RC/scripts" -ItemType "Directory"
+          New-Item -Path . -Name "_pack/DD/scripts" -ItemType "Directory"
+
+          # Move DD Files
+          Move-Item -Path "scripts/vrelk_zadElectroShockScript.pex" -Destination "_pack/DD/scripts" -Force -ErrorAction SilentlyContinue
+          Move-Item -Path "vrelk_zadElectroShockEvent.esp" -Destination "_pack/DD" -Force -ErrorAction SilentlyContinue
+
+          # Move Better Vampire files
+          Move-Item -Path "scripts/source/BV-9.01/magicAttachAshPileOnVampireDeathNPC.pex" -Destination "_pack/BV/scripts" -Force -ErrorAction SilentlyContinue
+          Move-Item -Path "scripts/source/RaceCompat-2.16/magicAttachAshPileOnVampireDeathNPC.pex" -Destination "_pack/BV_RC/scripts" -Force -ErrorAction SilentlyContinue
+
+          # Move everything else to REQUIRED
+          Move-Item -Path "scripts" -Destination "_pack/REQUIRED/scripts" -Force -ErrorAction SilentlyContinue
+          Move-Item -Path "vrelk_ActorEventWatcher.esp" -Destination "_pack/REQUIRED" -Force -ErrorAction SilentlyContinue
+
+      - name: Generate info.xml
+        shell: pwsh
+        run: |
+          $refName = $env:REF_NAME
+
+          $infoXml = @"
+          <?xml version='1.0' encoding='UTF-16'?>
+          <fomod>
+            <Name>Vrelk's Actor Event Watcher for MinAI</Name> 
+            <Author>Controller Vrelk</Author>
+            <Id>128980</Id>
+            <Version MachineVersion='$refName'>$refName</Version>
+            <Website>https://github.com/vrelk/ActorEventWatcher/</Website>
+            <Groups>
+              <element>Gameplay</element>
+            </Groups>
+          </fomod>
+          "@
+
+          Set-Content -Path "_pack/fomod/info.xml" -Value $infoXml -Encoding Unicode
+
+      - name: Generate ModuleConfig.xml
+        shell: pwsh
+        run: |
+          $moduleConfig = @"
+          <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd"> 
+            <moduleName>Vrelk's Actor Event Watcher for MinAI</moduleName> 
+            <requiredInstallFiles> 
+              <folder source="REQUIRED" destination="" /> 
+            </requiredInstallFiles> 
+            <installSteps order="Explicit"> 
+              <installStep name="Optional Integrations"> 
+                <optionalFileGroups order="Explicit"> 
+                  <group name="Better Vampires" type="SelectAtMostOne"> 
+                    <plugins order="Explicit"> 
+                      <plugin name="Standard"> 
+                        <description>
+                        <![CDATA[
+                        Enables vampire feeding notifications for turned vampires.
+
+                        Pick this option if you are not using the Race Compatibility mod, or if you didn't enable the Better Vampires patch when installing it.
+                        ]]>
+                        </description> 
+                        <files> 
+                          <folder source="BV" destination="" priority="0" /> 
+                        </files> 
+                        <typeDescriptor> 
+                          <dependencyType> 
+                            <defaultType name="Optional"/> 
+                            <patterns> 
+                              <pattern> 
+                                <dependencies operator="And"> 
+                                  <fileDependency file="Better Vampires.esp" state="Active"/> 
+                                  <fileDependency file="RaceCompatibility.esm" state="Inactive"/> 
+                                </dependencies> 
+                                <type name="Optional"/> 
+                              </pattern> 
+                            </patterns> 
+                          </dependencyType> 
+                        </typeDescriptor> 
+                      </plugin> 
+                      <plugin name="Using Race Compatibilty patch"> 
+                        <description>
+                        <![CDATA[
+                        Enables vampire feeding notifications for turned vampires.
+
+                        Pick this option if you are using the Race Compatibility mod, and you enabled the Better Vampires patch when installing it.
+                        ]]>
+                        </description> 
+                        <files> 
+                          <folder source="BV_RC" destination="" priority="0" /> 
+                        </files> 
+                        <typeDescriptor> 
+                          <dependencyType> 
+                            <defaultType name="Optional"/> 
+                            <patterns> 
+                              <pattern> 
+                                <dependencies operator="And"> 
+                                  <fileDependency file="Better Vampires.esp" state="Active"/> 
+                                  <fileDependency file="RaceCompatibility.esm" state="Active"/> 
+                                </dependencies> 
+                                <type name="Optional"/> 
+                              </pattern> 
+                            </patterns> 
+                          </dependencyType> 
+                        </typeDescriptor> 
+                      </plugin> 
+                    </plugins> 
+                  </group> 
+                  <group name="Devious Devices" type="SelectAtMostOne"> 
+                    <plugins order="Explicit"> 
+                      <plugin name="Shock Patch"> 
+                        <description><![CDATA[
+                        Send an event when a DD device shocks you or an actor.&#13;&#10;
+                        
+                        This may be incompatible with any mods that modify the zad_effElectroShock magic effect.&#13;&#10;
+                        (I don't know, but I'm gonna guess this isn't many.)
+                        ]]>
+                        </description> 
+                        <files> 
+                          <folder source="DD" destination="" priority="0" /> 
+                        </files> 
+                        <typeDescriptor> 
+                          <dependencyType> 
+                            <defaultType name="Optional"/> 
+                            <patterns> 
+                              <pattern> 
+                                <dependencies operator="And"> 
+                                  <fileDependency file="Devious Devices - Integration.esm" state="Active"/> 
+                                </dependencies> 
+                                <type name="Optional"/> 
+                              </pattern> 
+                            </patterns> 
+                          </dependencyType> 
+                        </typeDescriptor> 
+                      </plugin> 
+                    </plugins> 
+                  </group> 
+                </optionalFileGroups> 
+              </installStep> 
+            </installSteps> 
+          </config>
+          "@
+
+          Set-Content -Path "_pack/fomod/ModuleConfig.xml" -Value $moduleConfig -Encoding Unicode
+
+      - name: Zip the mod files
+        uses: TheDoctor0/zip-release@0.7.6
+        with:
+          path: "./_pack/*"
+          type: "zip"
+          filename: "ActorEventWatcher-${{ env.REF_NAME }}.zip"
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: "ActorEventWatcher-${{ env.REF_NAME }}.zip"
+          token: ${{ secrets.RELEASE_TOKEN }}
+          generateReleaseNotes: true
+          prerelease: true
