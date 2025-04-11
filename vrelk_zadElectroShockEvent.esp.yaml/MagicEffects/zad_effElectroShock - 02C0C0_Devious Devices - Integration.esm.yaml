@@ -1,0 +1,21 @@
+FormKey: 02C0C0:Devious Devices - Integration.esm
+EditorID: zad_effElectroShock
+VirtualMachineAdapter:
+  Scripts:
+  - Name: vrelk_zadElectroShockScript
+Name:
+  TargetLanguage: English
+  Value: ElectroStim Shock
+Flags:
+- HideInUI
+HitShader: 057C67:Skyrim.esm
+Archetype:
+  MutagenObjectType: MagicEffectArchetype
+  ActorValue: Health
+CastType: FireAndForget
+DualCastScale: 1
+CastingSoundLevel: Normal
+Sounds: []
+Description:
+  TargetLanguage: English
+  Value: ''

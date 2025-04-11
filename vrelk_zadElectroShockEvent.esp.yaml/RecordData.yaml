@@ -1,0 +1,15 @@
+SpriggitSource:
+  PackageName: 0.36.14
+  Version: ''
+ModKey: vrelk_zadElectroShockEvent.esp
+GameRelease: SkyrimSE
+ModHeader:
+  Flags:
+  - Small
+  Author: Controller Vrelk
+  Description: Just adds a script to the zad_effElectroShock MGEF to send an event
+  MasterReferences:
+  - Master: Skyrim.esm
+    FileSize: 0
+  - Master: Devious Devices - Integration.esm
+    FileSize: 0
