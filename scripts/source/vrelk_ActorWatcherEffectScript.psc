@@ -121,8 +121,6 @@ string Function GetActorName(actor akActor)
     EndIf
 EndFunction
 
-Function Log(string msg)
-    If enableLogging
-        VrelkTools_Logging.Log(msg, logPrefix, true)
-    EndIf
+Function Log(string msg, string prefix = "")
+    ActorWatcherQuest.Log(msg, logPrefix, true)
 EndFunction

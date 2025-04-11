@@ -7,5 +7,3 @@
 	 - If you are using Race Compatibility 2.16, you will need the script in the `RaceCompat-2.16` folder.
 
 #### Make sure this mod has a higher priority than both *Better Vampires* and *Race Compatibility* in your mod manager so it can override the Better Vampires script.
-
-#### If you're going to test this, you will need this while it's in the dev stages... [VrelkPapyrusTools](https://git.vrelk.com/vrelk-mods/Vrelk_PapyrusTools/releases)
