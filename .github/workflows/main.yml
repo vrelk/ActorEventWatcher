@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create BAIN folders and move files
+      - name: Create folders and move files
         run: |
           # Create the main packaging folder
           New-Item -Path . -Name "_pack/fomod" -ItemType "Directory"
@@ -179,6 +179,4 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           artifacts: "ActorEventWatcher-${{ env.REF_NAME }}.zip"
-          token: ${{ secrets.RELEASE_TOKEN }}
-          generateReleaseNotes: true
           prerelease: true
