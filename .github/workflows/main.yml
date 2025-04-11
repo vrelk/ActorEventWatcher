@@ -23,7 +23,8 @@ jobs:
 
       - name: Create BAIN folders and move files
         run: |
-          # Create the main packaging folder and BAIN subfolders
+          # Create the main packaging folder
+          New-Item -Path . -Name "_pack/fomod" -ItemType "Directory"
           New-Item -Path . -Name "_pack/REQUIRED" -ItemType "Directory"
           New-Item -Path . -Name "_pack/BV/scripts" -ItemType "Directory"
           New-Item -Path . -Name "_pack/BV_RC/scripts" -ItemType "Directory"
