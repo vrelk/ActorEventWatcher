@@ -30,7 +30,7 @@ minai_AIFF aiff
 
 ; Logging toggle
 Bool enableLogging = true
-String logPrefix = "Vrelk_ActorWatcherQuestScript-1.09"
+String logPrefix = "Vrelk_ActorWatcherQuestScript-0.00"
 
 Event OnInit()
     Log("OnInit")
@@ -46,6 +46,8 @@ Function Maintenance()
     If isLoading
         Return
     EndIf
+
+    logPrefix = "Vrelk_ActorWatcherQuestScript-1.09"
 
     Log("Maintenance")
 
@@ -121,11 +123,9 @@ Event OnZadElectroShockScript(Form akTarget)
     Actor akActor = akTarget as Actor
     Log("OnZadElectroShockScript: " + GetActorName(akActor))
 
-    ;VrelkTools_MinAi.RegisterEvent(GetActorName(akTarget) + " just got zapped!", "infoaction")
     main.RegisterEvent(GetActorName(akActor) + " just got zapped!", "infoaction")
 
     if(akActor == PlayerRef)
-        ;VrelkTools_MinAi.RequestResponseDialogue(GetActorName(akActor), "*A painful shock rips through " + GetActorName(akActor) + "'s body* Ouch! This damn plug just shocked me again right when I was on the edge! I was so close...", "chat", "everyone")
         main.RequestLLMResponseFromActor("*A painful shock rips through " + GetActorName(akActor) + "'s body* Ouch! This damn plug just shocked me again right when I was on the edge! I was so close...", "chat", "everyone", "npc")
     else
         main.RequestLLMResponseNPC(GetActorName(akActor), "*A painful shock rips through " + akActor.GetActorBase().GetName() + "'s body* Ouch! This damn plug just shocked me again right when I was on the edge! I was so close...", "everyone")
@@ -151,11 +151,7 @@ Event OnVampireFeed(int formVampire, int formVictim, bool victimSleeping)
     OnVampireFeedEvent(akVampire, akVictim, victimSleeping)
 EndEvent
 
-;Function OnVampireFeedEvent(int formVampire, int formVictim, bool victimSleeping)
 Function OnVampireFeedEvent(Actor akVampire, Actor akVictim, bool victimSleeping)
-    ;Actor akVampire = Game.GetFormEx(formVampire) as Actor
-    ;Actor akVictim = Game.GetFormEx(formVictim) as Actor
-
     Log(GetActorName(akVampire) + " fed on " + GetActorName(akVictim) + ". Was Sleeping: " + victimSleeping)
 
     string msg = "I just quenched my vampiric thirst for blood by feeding on"
@@ -254,7 +250,6 @@ Function OnVampireFeedEvent(Actor akVampire, Actor akVictim, bool victimSleeping
         msg = msg + ", while they were sleeping."
     EndIf
 
-    ;VrelkTools_MinAi.RequestResponseDialogue(GetActorName(akVampire), msg, "everyone") ; send generic dialogue to everyone, requesting a response
     main.RequestLLMResponseNPC(GetActorName(akVampire), msg, "everyone") ; send generic dialogue to everyone, requesting a response
 EndFunction
 
@@ -333,14 +328,11 @@ Function OnRaceSwitchCompleteEvent(Actor akActor, Race oldRace, Race newRace)
     If msg == "" ; not a transformation we care about, so just return
         return
     ElseIf akActor.IsInCombat()
-        ;VrelkTools_MinAi.RegisterEvent(msg, "infoaction") ; actor is in combat, so just send this as general context information
         main.RegisterEvent(msg, "infoaction") ; actor is in combat, so just send this as general context information
     ElseIf !akActor.IsInCombat()
         If akActor == PlayerRef
-            ;VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send generic dialogue to everyone, requesting a response
             main.RequestLLMResponseFromActor(msg, "chat", "everyone", "npc") ; send generic dialogue to everyone, requesting a response)
         Else
-            ;VrelkTools_MinAi.RequestResponseDialogue(GetActorName(akActor), msg, "everyone") ; send generic dialogue to everyone, requesting a response
             main.RequestLLMResponseNPC(GetActorName(akActor), msg, "everyone") ; send generic dialogue to everyone, requesting a response
         EndIf
     EndIf
@@ -362,13 +354,10 @@ Function OnObjectEquippedEvent(Actor akActor, Form akBaseObject, ObjectReference
     If hasOCF && akBaseObject as Potion
         string msg = ""
         If akBaseObject.HasKeywordString("OCF_AlchDrinkAlcohol")
-            ;VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just drank " + akBaseObject.GetName() + " (alcohol)", "infoaction")
             msg = GetActorName(akActor) + " just drank " + akBaseObject.GetName() + " (alcohol)"
         ElseIf akBaseObject.HasKeywordString("OCF_AlchDrugSkooma")
-            ;VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just consumed some " + akBaseObject.GetName() + " (highly addictive narcotic)", "infoaction")
             msg = GetActorName(akActor) + " just consumed some " + akBaseObject.GetName() + " (highly addictive narcotic)"
         ElseIf akBaseObject.HasKeywordString("_SHBloodDrink")
-            ;VrelkTools_MinAi.RegisterEvent(GetActorName(akActor) + " just drank a " + akBaseObject.GetName() + " (alternative to feeding on another person)", "infoaction")
             msg = GetActorName(akActor) + " just drank a " + akBaseObject.GetName() + " (alternative to feeding on another person)"
         EndIf
 
@@ -391,7 +380,6 @@ Event OnNewPaheSlaveEvent(PAHCore pahCore, Actor akSlave)
     Log(GetActorName(akSlave) + " is now a PAH slave.")
 
     string msg = "I just enslaved " + GetActorName(akSlave)
-    ;VrelkTools_MinAi.RequestResponse(msg, "chat", "everyone") ; send player dialogue to everyone, requesting a response
     main.RequestLLMResponseFromActor(msg, "chat", "everyone", "npc") ; send player dialogue to everyone, requesting a response
 EndEvent
 
@@ -406,12 +394,12 @@ string Function GetActorName(actor akActor)
     EndIf
 EndFunction
 
-Function Log(string message, string prefix = "", bool console = true)
+Function Log(string msg, string prefix = "Vrelk_ActorWatcherQuestScript-1.09", bool console = true)
     If (prefix == "")
         prefix = logPrefix
     EndIf
 
-    string msg = "[" + prefix + "] " + msg
+    msg = "[" + prefix + "] " + msg
 
     If (console)
         MiscUtil.PrintConsole(msg)
