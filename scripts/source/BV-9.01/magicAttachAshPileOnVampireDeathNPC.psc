@@ -800,8 +800,8 @@ Function SendTurnedVampFeedEvent(Actor akVampire, Actor akVictim, bool victimSle
 	If akVampire.HasKeyword(ImATurnedVampire) == True
 		int handle = ModEvent.Create("BetterVampires_TurnedVampireFeed")
     	If (handle)
-			ModEvent.PushInt(handle, akVampire.GetFormID())
-			ModEvent.PushInt(handle, akVictim.GetFormID())
+			ModEvent.PushForm(handle, akVampire As Form)
+			ModEvent.PushForm(handle, akVictim As Form)
 			ModEvent.PushBool(handle, victimSleeping)
 			ModEvent.Send(handle)
 		EndIf

@@ -1,11 +1,13 @@
 SpriggitSource:
-  PackageName: 0.36.14
+  PackageName: 0.37.2
   Version: ''
 ModKey: vrelk_ActorEventWatcher.esp
 GameRelease: SkyrimSE
 ModHeader:
   Flags:
   - Small
+  Stats:
+    Version: 1.7
   Author: DEFAULT
   MasterReferences:
   - Master: Skyrim.esm
